@@ -447,7 +447,7 @@
                 console.log('Total records:', csvData.length);
                 
                 document.getElementById('totalRecords').textContent = `${csvData.length} records loaded`;
-                document.getElementById('searchStatus').textContent = 'Ready';
+                document.getElementById('searchStatus').textContent = 'Active';
                 
             } catch (error) {
                 console.error('Error loading CSV:', error);
@@ -572,7 +572,7 @@
             const endTime = performance.now();
             const searchTime = (endTime - startTime).toFixed(2);
 
-            searchStatus.textContent = 'Active';
+            searchStatus.textContent = 'Ready';
             displayResults(currentResults, query, searchTime);
         }
 

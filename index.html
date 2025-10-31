@@ -714,20 +714,7 @@
         });
 
         // Real-time search
-        let searchTimeout;
-        document.getElementById('searchInput').addEventListener('input', function(e) {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                if (this.value.length >= 2) {
-                    searchData();
-                } else if (this.value.length === 0) {
-                    const resultsContainer = document.getElementById('resultsContainer');
-                    const resultsInfo = document.getElementById('resultsInfo');
-                    resultsInfo.innerHTML = 'Enter search term to find students';
-                    resultsContainer.innerHTML = '<div class="no-results"><h3>🔍 Search for students</h3><p>Use the search box above to find student records</p></div>';
-                }
-            }, 300);
-        });
+        
     </script>
 </body>
 </html>

@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Search</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .search-section {
+            padding: 40px;
+            background: #f8f9fa;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        #searchInput {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        #searchInput:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        #searchBtn {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #searchBtn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .results-section {
+            padding: 0 40px 40px 40px;
+        }
+
+        .results-info {
+            margin-bottom: 20px;
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .results-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .results-table td {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .results-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .stat-card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .search-box {
+                flex-direction: column;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .results-table {
+                font-size: 14px;
+            }
+            
+            .results-table th,
+            .results-table td {
+                padding: 10px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Product Search Engine</h1>
+            <p>Search through our product database instantly</p>
+        </div>
+
+        <div class="search-section">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search products, names, cities, emails...">
+                <button id="searchBtn" onclick="searchData()">Search</button>
+            </div>
+            <div class="stats">
+                <div class="stat-card">
+                    <h3>📊 Total Records</h3>
+                    <div id="totalRecords">Loading...</div>
+                </div>
+                <div class="stat-card">
+                    <h3>⚡ Search Speed</h3>
+                    <div>Instant Results</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="results-section">
+            <div class="results-info" id="resultsInfo">Enter search term to find products</div>
+            <div id="resultsContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        let csvData = [];
+        let headers = [];
+
+        // Load CSV data when page loads
+        window.addEventListener('DOMContentLoaded', async function() {
+            await loadCSVData();
+        });
+
+        // Load CSV from file
+        async function loadCSVData() {
+            try {
+                document.getElementById('totalRecords').textContent = 'Loading data...';
+                
+                // CSV file fetch karo
+                const response = await fetch('./data.csv');
+                const csvText = await response.text();
+                
+                // Parse CSV
+                const lines = csvText.split('\n').filter(line => line.trim());
+                headers = lines[0].split(',').map(h => h.trim());
+                
+                csvData = lines.slice(1).map(line => {
+                    const values = line.split(',').map(v => v.trim());
+                    let obj = {};
+                    headers.forEach((header, index) => {
+                        obj[header] = values[index] || '';
+                    });
+                    return obj;
+                }).filter(obj => obj[headers[0]]);
+                
+                document.getElementById('totalRecords').textContent = `${csvData.length} records loaded`;
+                console.log('Data loaded successfully:', csvData);
+                
+            } catch (error) {
+                console.error('Error loading CSV:', error);
+                document.getElementById('totalRecords').textContent = 'Error loading data';
+            }
+        }
+
+        // Search function
+        function searchData() {
+            const query = document.getElementById('searchInput').value.trim().toLowerCase();
+            const resultsContainer = document.getElementById('resultsContainer');
+            const resultsInfo = document.getElementById('resultsInfo');
+
+            if (!query) {
+                resultsInfo.innerHTML = 'Please enter a search term';
+                resultsContainer.innerHTML = '';
+                return;
+            }
+
+            if (csvData.length === 0) {
+                resultsInfo.innerHTML = 'Data not loaded yet. Please wait...';
+                return;
+            }
+
+            const startTime = performance.now();
+            
+            // Search all columns
+            const results = csvData.filter(item => {
+                return Object.values(item).some(value => 
+                    value.toString().toLowerCase().includes(query)
+                );
+            });
+
+            const endTime = performance.now();
+            const searchTime = (endTime - startTime).toFixed(2);
+
+            displayResults(results, query, searchTime);
+        }
+
+        // Display results
+        function displayResults(results, query, searchTime) {
+            const resultsContainer = document.getElementById('resultsContainer');
+            const resultsInfo = document.getElementById('resultsInfo');
+
+            if (results.length === 0) {
+                resultsInfo.innerHTML = `No results found for "<strong>${query}</strong>"`;
+                resultsContainer.innerHTML = `
+                    <div class="no-results">
+                        <h3>🔍 No matching records found</h3>
+                        <p>Try different search terms or check spelling</p>
+                    </div>
+                `;
+                return;
+            }
+
+            resultsInfo.innerHTML = `
+                Found <strong>${results.length}</strong> results for "<strong>${query}</strong>" 
+                in <strong>${searchTime}ms</strong>
+            `;
+
+            let html = `
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            ${headers.map(header => `<th>${header.toUpperCase()}</th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            results.forEach(row => {
+                html += `<tr>`;
+                headers.forEach(header => {
+                    let value = row[header];
+                    // Highlight search term in results
+                    if (value.toLowerCase().includes(query)) {
+                        const regex = new RegExp(`(${query})`, 'gi');
+                        value = value.replace(regex, '<mark>$1</mark>');
+                    }
+                    html += `<td>${value}</td>`;
+                });
+                html += `</tr>`;
+            });
+
+            html += `</tbody></table>`;
+            resultsContainer.innerHTML = html;
+        }
+
+        // Search on Enter key
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchData();
+            }
+        });
+
+        // Real-time search (optional)
+        let searchTimeout;
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                if (this.value.length >= 2) {
+                    searchData();
+                }
+            }, 300);
+        });
+    </script>
+</body>
+</html>

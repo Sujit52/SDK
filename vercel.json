@@ -7,6 +7,7 @@
   ],
   "routes": [
     { "src": "^/Kharigerya$", "dest": "/Kharigerya/index.html" },
+   { "src": "^/Kapgari$", "dest": "/Kapgari/index.html" },
     { "src": "/(.*)", "dest": "/$1" }
   ]
 }

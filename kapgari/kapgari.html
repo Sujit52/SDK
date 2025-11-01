@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Search Engine By SDK</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .search-section {
+            padding: 30px;
+            background: #f8f9fa;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        #searchInput {
+            flex: 1;
+            min-width: 300px;
+            padding: 15px 20px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        #searchInput:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        #searchBtn {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        #searchBtn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .results-section {
+            padding: 0 20px 30px 20px;
+        }
+
+        .results-info {
+            margin-bottom: 20px;
+            color: #666;
+            font-size: 1.1rem;
+            padding: 0 10px;
+        }
+
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            background: white;
+        }
+
+        .results-table {
+            width: 100%;
+            min-width: 600px;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        .results-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 12px;
+            text-align: left;
+            font-weight: 600;
+            white-space: nowrap;
+            position: sticky;
+            top: 0;
+        }
+
+        .results-table td {
+            padding: 12px;
+            border-bottom: 1px solid #f0f0f0;
+            white-space: nowrap;
+            min-width: 120px;
+        }
+
+        .results-table tr:hover {
+            background: #f8f9fa;
+            cursor: pointer;
+        }
+
+        .photo-cell {
+            text-align: center;
+            min-width: 80px;
+        }
+
+        .student-photo {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .student-photo:hover {
+            transform: scale(1.1);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            position: relative;
+            margin: 5% auto;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .modal-photo {
+            width: 100%;
+            max-height: 80vh;
+            object-fit: contain;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .modal-info {
+            background: white;
+            padding: 20px;
+            border-radius: 0 0 10px 10px;
+            margin-top: -5px;
+        }
+
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            color: white;
+            font-size: 30px;
+            font-weight: bold;
+            cursor: pointer;
+            background: rgba(0,0,0,0.5);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .close:hover {
+            background: rgba(0,0,0,0.8);
+            transform: scale(1.1);
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .stats {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .stat-card h3 {
+            color: #667eea;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .export-btn {
+            padding: 12px 25px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-left: auto;
+        }
+
+        .export-btn:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        mark {
+            background: yellow;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        .table-container::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .table-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .table-container::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 4px;
+        }
+
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background: #764ba2;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .search-section {
+                padding: 20px;
+            }
+            
+            #searchInput {
+                min-width: 100%;
+            }
+            
+            .search-box {
+                flex-direction: column;
+            }
+            
+            .results-section {
+                padding: 0 10px 20px 10px;
+            }
+            
+            .stat-card {
+                min-width: 100%;
+            }
+            
+            .results-table th,
+            .results-table td {
+                padding: 10px 8px;
+                font-size: 14px;
+            }
+
+            .student-photo {
+                width: 40px;
+                height: 40px;
+            }
+
+            .modal-content {
+                margin: 10% auto;
+                width: 95%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 Student Database</h1>
+            <p>Kapgari college students details</p>
+        </div>
+
+        <div class="search-section">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search By Name, Mobile Number Etc..">
+                <button id="searchBtn" onclick="searchData()">Search</button>
+              <!-- <button class="export-btn" onclick="exportToCSV()">📥 Export Results</button> -->
+            </div>
+            <div class="stats">
+                <div class="stat-card">
+                    <h3>📊 Total Records</h3>
+                    <div id="totalRecords">Loading...</div>
+                </div>
+                
+                <div class="stat-card">
+                    <h3>⚡ Search Status</h3>
+                    <div id="searchStatus">Active</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="results-section">
+            <div class="results-info" id="resultsInfo">Fu@këd By SDK</div>
+            <div id="resultsContainer">
+                <div class="no-results">
+                    <h3>🔍 Search for students</h3>
+                    <p>Use the search box above to find student records</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Photo Modal -->
+    <div id="photoModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <img id="modalPhoto" class="modal-photo" src="" alt="Student Photo">
+            <div class="modal-info">
+                <h3 id="modalName"></h3>
+                <p id="modalRollNo"></p>
+                <p id="modalCourse"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let csvData = [];
+        let headers = [];
+        let currentResults = [];
+        let photoBasePath = '/photos/';
+
+        // Load CSV data when page loads
+        window.addEventListener('DOMContentLoaded', function() {
+            loadCSVData();
+            checkPhotoAvailability();
+        });
+
+        // Load CSV from file - IMPROVED PARSING
+        async function loadCSVData() {
+            try {
+                document.getElementById('totalRecords').textContent = 'Loading data...';
+                document.getElementById('searchStatus').textContent = 'Loading...';
+                
+                const response = await fetch('/kapgari.csv');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const csvText = await response.text();
+                
+                // Parse CSV with dynamic headers
+                const lines = csvText.split('\n').filter(line => line.trim());
+                
+                if (lines.length === 0) {
+                    throw new Error('CSV file is empty');
+                }
+                
+                // Get actual headers from first line
+                headers = lines[0].split(',').map(h => h.trim());
+                console.log('CSV Headers:', headers);
+                
+                // Parse all data with actual headers
+                csvData = [];
+                for (let i = 1; i < lines.length; i++) {
+                    if (lines[i].trim() === '') continue;
+                    
+                    const values = parseCSVLine(lines[i]);
+                    let obj = {};
+                    
+                    headers.forEach((header, idx) => {
+                        obj[header] = values[idx] || '';
+                    });
+                    
+                    // Only add if first column has data
+                    if (obj[headers[0]] && obj[headers[0]].trim() !== '') {
+                        csvData.push(obj);
+                    }
+                }
+                
+                console.log('Loaded data:', csvData);
+                console.log('Total records:', csvData.length);
+                
+                document.getElementById('totalRecords').textContent = `${csvData.length} records loaded`;
+                document.getElementById('searchStatus').textContent = 'Active';
+                
+            } catch (error) {
+                console.error('Error loading CSV:', error);
+                document.getElementById('totalRecords').textContent = 'Error loading data';
+                document.getElementById('searchStatus').textContent = 'Error';
+                
+                // Load sample data with proper headers
+                loadSampleData();
+            }
+        }
+
+        // Improved CSV line parsing
+        function parseCSVLine(line) {
+            const values = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    values.push(current.trim());
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            values.push(current.trim());
+            
+            return values;
+        }
+
+        // Load sample data with proper structure
+        function loadSampleData() {
+            headers = ['RollNo', 'Name', 'Course', 'Year', 'Department', 'AdditionalInfo1', 'AdditionalInfo2'];
+            csvData = [
+                { 
+                    RollNo: '2021-724', 
+                    Name: 'HEMAL MURMU', 
+                    Course: 'SANTALI (H)',
+                    Year: '2021',
+                    Department: 'Arts',
+                    AdditionalInfo1: 'Sample Info 1',
+                    AdditionalInfo2: 'Sample Info 2'
+                },
+                { 
+                    RollNo: '2019-38', 
+                    Name: 'HEMAL MANDI', 
+                    Course: 'B.A.(GENERAL)',
+                    Year: '2019',
+                    Department: 'Arts',
+                    AdditionalInfo1: 'Sample Info 1',
+                    AdditionalInfo2: 'Sample Info 2'
+                },
+                { 
+                    RollNo: '2019-124', 
+                    Name: 'HEMAL HEMBRAM', 
+                    Course: 'B.A.(GENERAL)',
+                    Year: '2019',
+                    Department: 'Arts',
+                    AdditionalInfo1: 'Sample Info 1',
+                    AdditionalInfo2: 'Sample Info 2'
+                }
+            ];
+            
+            document.getElementById('totalRecords').textContent = `${csvData.length} sample records loaded`;
+            document.getElementById('searchStatus').textContent = 'Ready (Sample Data)';
+        }
+
+        // Check if photos are available
+        async function checkPhotoAvailability() {
+            try {
+                const testResponse = await fetch('/photos/default.jpg', { method: 'HEAD' });
+                if (testResponse.ok) {
+                    document.getElementById('photoStatus').textContent = 'Available';
+                } else {
+                    document.getElementById('photoStatus').textContent = 'Not Found';
+                }
+            } catch (error) {
+                document.getElementById('photoStatus').textContent = 'Not Available';
+            }
+        }
+
+        // Get photo URL for student
+        function getStudentPhotoUrl(student) {
+            const rollNo = student.RollNo || student[headers[0]];
+            if (!rollNo) return `${photoBasePath}default.jpg`;
+            
+            const cleanRollNo = rollNo.replace(/[^a-zA-Z0-9-]/g, '');
+            return `${photoBasePath}${cleanRollNo}.jpg`;
+        }
+
+        // Search function
+        function searchData() {
+            const query = document.getElementById('searchInput').value.trim().toLowerCase();
+            const resultsContainer = document.getElementById('resultsContainer');
+            const resultsInfo = document.getElementById('resultsInfo');
+            const searchStatus = document.getElementById('searchStatus');
+
+            if (!query) {
+                resultsInfo.innerHTML = 'Please enter a search term';
+                resultsContainer.innerHTML = '<div class="no-results"><h3>🔍 Enter search term</h3><p>Please type something to search</p></div>';
+                return;
+            }
+
+            if (csvData.length === 0) {
+                resultsInfo.innerHTML = 'Data not loaded yet. Please wait...';
+                return;
+            }
+
+            searchStatus.textContent = 'Searching...';
+            const startTime = performance.now();
+            
+            currentResults = csvData.filter(item => {
+                return Object.values(item).some(value => 
+                    value.toString().toLowerCase().includes(query)
+                );
+            });
+
+            const endTime = performance.now();
+            const searchTime = (endTime - startTime).toFixed(2);
+
+            searchStatus.textContent = 'Ready';
+            displayResults(currentResults, query, searchTime);
+        }
+
+        // Display results - ALL COLUMNS WILL SHOW
+        function displayResults(results, query, searchTime) {
+            const resultsContainer = document.getElementById('resultsContainer');
+            const resultsInfo = document.getElementById('resultsInfo');
+
+            if (results.length === 0) {
+                resultsInfo.innerHTML = `No results found for "<strong>${query}</strong>"`;
+                resultsContainer.innerHTML = `
+                    <div class="no-results">
+                        <h3>🔍 No matching records found</h3>
+                        <p>Try different search terms or check spelling</p>
+                    </div>
+                `;
+                return;
+            }
+
+            resultsInfo.innerHTML = `
+                Found <strong>${results.length}</strong> results for "<strong>${query}</strong>" 
+                in <strong>${searchTime}ms</strong>
+                <span style="color: #666; font-size: 0.9rem; margin-left: 10px;">
+                    💡 Click on any row to view student photo
+                </span>
+            `;
+
+            let html = `
+                <div class="table-container">
+                    <table class="results-table">
+                        <thead>
+                            <tr>
+                                <th>PHOTO</th>
+                                ${headers.map(header => `<th>${header}</th>`).join('')}
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            results.forEach(row => {
+                const rollNo = row.RollNo || row[headers[0]];
+                const photoUrl = getStudentPhotoUrl(row);
+
+                html += `<tr onclick="showStudentPhoto('${rollNo}', '${row.Name || ''}', '${row.Course || ''}')">`;
+                html += `<td class="photo-cell"><img src="${photoUrl}" alt="${rollNo}" class="student-photo" onerror="this.src='${photoBasePath}default.jpg'"></td>`;
+                
+                // Show ALL columns from CSV
+                headers.forEach(header => {
+                    let value = row[header] || '';
+                    if (value.toLowerCase().includes(query)) {
+                        const regex = new RegExp(`(${query})`, 'gi');
+                        value = value.replace(regex, '<mark>$1</mark>');
+                    }
+                    html += `<td title="${value}">${value}</td>`;
+                });
+                
+                html += `</tr>`;
+            });
+
+            html += `</tbody></table></div>`;
+            resultsContainer.innerHTML = html;
+        }
+
+        // Show student photo in modal
+        function showStudentPhoto(rollNo, name, course) {
+            const modal = document.getElementById('photoModal');
+            const modalPhoto = document.getElementById('modalPhoto');
+            const modalName = document.getElementById('modalName');
+            const modalRollNo = document.getElementById('modalRollNo');
+            const modalCourse = document.getElementById('modalCourse');
+
+            const photoUrl = getStudentPhotoUrl({RollNo: rollNo});
+            
+            modalPhoto.src = photoUrl;
+            modalPhoto.onerror = function() {
+                this.src = `${photoBasePath}default.jpg`;
+            };
+            
+            modalName.textContent = name || 'N/A';
+            modalRollNo.textContent = `Roll No: ${rollNo}`;
+            modalCourse.textContent = `Course: ${course || 'N/A'}`;
+            
+            modal.style.display = 'block';
+        }
+
+        // Close modal
+        function closeModal() {
+            const modal = document.getElementById('photoModal');
+            modal.style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('photoModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
+
+        // Export to CSV function
+        function exportToCSV() {
+            if (currentResults.length === 0) {
+                alert('No results to export!');
+                return;
+            }
+
+            let csvContent = headers.join(',') + '\n';
+            
+            currentResults.forEach(row => {
+                const rowData = headers.map(header => {
+                    let value = row[header] || '';
+                    if (value.includes(',')) {
+                        value = `"${value}"`;
+                    }
+                    return value;
+                });
+                csvContent += rowData.join(',') + '\n';
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('hidden', '');
+            a.setAttribute('href', url);
+            a.setAttribute('download', 'student_search_results.csv');
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        // Search on Enter key
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchData();
+            }
+        });
+
+        // Real-time search
+        
+    </script>
+</body>
+</html>

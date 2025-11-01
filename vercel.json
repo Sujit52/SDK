@@ -1,29 +1,14 @@
 {
   "version": 2,
   "builds": [
-    {
-      "src": "**/*.html",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "**/*.csv",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "public/**/*",
-      "use": "@vercel/static"
-    }
+    { "src": "*.html", "use": "@vercel/static" },
+    { "src": "*.csv", "use": "@vercel/static" },
+    { "src": "/photos/*", "use": "@vercel/static" }
   ],
   "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/$1"
-    },
-    {
-      "src": "/(.*)/",
-      "dest": "/$1/index.html"
-    }
-  ],
-  "cleanUrls": true,
-  "trailingSlash": false
+    { "src": "^/kapgari$", "dest": "/kapgari/kapgari.html" },
+    { "src": "^/kharigerya$", "dest": "/kharigerya/index.html" },
+    { "src": "^/silda$", "dest": "/silda/index.html" },
+    { "src": "/(.*)", "dest": "/$1" }
+  ]
 }

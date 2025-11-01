@@ -12,6 +12,10 @@
     {
       "src": "photos/**",
       "use": "@vercel/static"
+    },
+    {
+      "src": "photos2/**",
+      "use": "@vercel/static"
     }
   ],
   "routes": [

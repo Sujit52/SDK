@@ -21,7 +21,7 @@
     },
     {
       "src": "/(.*)/",
-      "dest": "/$1/index.html"
+      "dest": "/$1/kapgari.html"
     }
   ],
   "cleanUrls": true,

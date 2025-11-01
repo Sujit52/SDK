@@ -1,12 +1,14 @@
+
+
 {
   "version": 2,
   "builds": [
     {
-      "src": "**/*.html",
+      "src": "*.html",
       "use": "@vercel/static"
     },
     {
-      "src": "**/*.csv",
+      "src": "*.csv",
       "use": "@vercel/static"
     },
     {
@@ -18,12 +20,6 @@
     {
       "src": "/(.*)",
       "dest": "/$1"
-    },
-    {
-      "src": "/(.*)/",
-      "dest": "/$1/kapgari.html"
     }
-  ],
-  "cleanUrls": true,
-  "trailingSlash": false
+  ]
 }
